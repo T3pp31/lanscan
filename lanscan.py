@@ -17,10 +17,12 @@ def get_netmask():
     return netmask
 
 #ネットワークアドレス部を求める
+# ホストアドレスが出てきてしまう→ネットワークアドレスを出したい
 def get_networkaddr():
     ip=get_own_ip()
     ip = netaddr.IPNetwork(ip)
 
+    network_addr = ip.ip&ip.netmask
     
     return ip.network
     
