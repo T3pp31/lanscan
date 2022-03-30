@@ -20,11 +20,16 @@ def get_netmask():
 # ホストアドレスが出てきてしまう→ネットワークアドレスを出したい
 def get_networkaddr():
     ip=get_own_ip()
+    print(ip)
     ip = netaddr.IPNetwork(ip)
 
-    network_addr = ip.ip&ip.netmask
+    network_addr = ip.ip & ip.netmask
     
-    return ip.network
+    print(f'netmask {ip.netmask}')
+    print(f'ip{ip}')
+    print(f'networkaddr{network_addr}')
+    
+    return network_addr
     
 
 # ipアドレスを求める関数
@@ -50,5 +55,6 @@ if __name__ == '__main__':
     netmask = get_netmask()
     
     print(get_networkaddr())
+    print(get_netmask)
     
     
