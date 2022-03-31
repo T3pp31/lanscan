@@ -2,7 +2,7 @@ import netifaces
 from scapy.all import *
 import socket
 import netaddr
-
+import ipaddress
 
 def get_own_ip():
     own_ip = netifaces.ifaddresses('en0')[netifaces.AF_INET][0]['addr']
@@ -20,19 +20,13 @@ def get_netmask():
 # ホストアドレスが出てきてしまう→ネットワークアドレスを出したい
 def get_networkaddr():
     ip=get_own_ip()
-    print(ip)
-    ip = netaddr.IPNetwork(ip)
-
-    network_addr = ip.ip & ip.netmask
-    
-    print(f'netmask {ip.netmask}')
-    print(f'ip{ip}')
-    print(f'networkaddr{network_addr}')
+    netmask=get_netmask()
+    network_addr = str(netaddr.IPNetwork(ip+'/'+netmask).cidr)
     
     return network_addr
     
 
-# ipアドレスを求める関数
+# ipアドレスを求める関数 ネットワークアドレス-ブロードキャストアドレスまでを探したい
 
 # macアドレスを求める関数
 
@@ -53,8 +47,7 @@ if __name__ == '__main__':
     own_ip=get_own_ip()
     broadcastaddr = get_broadcastaddr()
     netmask = get_netmask()
-    
+
     print(get_networkaddr())
-    print(get_netmask)
     
     
