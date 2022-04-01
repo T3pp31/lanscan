@@ -9,6 +9,7 @@ import os
 import pandas as pd
 
 
+
 def get_own_ip():
     own_ip = netifaces.ifaddresses('en0')[netifaces.AF_INET][0]['addr']
     return own_ip
@@ -57,20 +58,25 @@ def get_hostinformation(networkaddr):
             pass
         
     for ip in tqdm(ip_list):
-        individual_port=[]
         host_name.append(get_hostname(ip))
         ip=str(ip)
-        for port in tqdm(range(0,65536)):
-            s = socket.socket()
-            errno = s.connect_ex((ip,port))
-            s.close()
-            
-            if errno == 0:
-                individual_port.append(port)
-            else:
-                pass
+        individual_port = port_scan(ip)
         open_port.append(individual_port)
+        
     return ip_list,mac_list,host_name,open_port
+
+def port_scan(ip):
+    individual_port=[]
+    for port in tqdm(range(0,65535)):
+        s=socket.socket()
+        errno = s.connect_ex((ip,port))
+        s.close()
+        
+        if errno == 0 :
+            individual_port.append(port)
+    return individual_port
+        
+        
         
 def make_result(ip,mac,host,port):
     df=pd.DataFrame()
