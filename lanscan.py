@@ -3,7 +3,11 @@ from scapy.all import *
 import socket
 import netaddr
 import ipaddress
-import nmap
+from tqdm import tqdm
+import socket
+import os
+import pandas as pd
+
 
 def get_own_ip():
     own_ip = netifaces.ifaddresses('en0')[netifaces.AF_INET][0]['addr']
@@ -40,7 +44,7 @@ def get_hostinformation(networkaddr):
     mac_list=[]
     host_name=[]
     open_port=[]
-    for ip in netaddr.IPNetwork(networkaddr):
+    for ip in tqdm(netaddr.IPNetwork(networkaddr)):
         print(ip)
         ip=str(ip)
         frame = Ether(dst='ff:ff:ff:ff:ff:ff') / ARP(op=1, pdst = ip)
@@ -51,19 +55,32 @@ def get_hostinformation(networkaddr):
             print(receive)
         except:
             pass
-    for ip in ip_list:
+        
+    for ip in tqdm(ip_list):
+        individual_port=[]
         host_name.append(get_hostname(ip))
-        ps=nmap.PortScanner()
         ip=str(ip)
-        open_port.append(ps.scan(ip,'1-65535','-sSV'))
-    print(f'open_port:{open_port}')
+        for port in tqdm(range(0,65536)):
+            s = socket.socket()
+            errno = s.connect_ex((ip,port))
+            s.close()
+            
+            if errno == 0:
+                individual_port.append(port)
+            else:
+                pass
+        open_port.append(individual_port)
+    return ip_list,mac_list,host_name,open_port
         
-        
-        
-        
-        
+def make_result(ip,mac,host,port):
+    df=pd.DataFrame()
+    df['ip']=ip
+    df['mac']=mac
+    df['host']=host
+    df['port']=port
+    
+    return df
 
-# macアドレスを求める関数
 
 # ホスト名を取得
 def get_hostname(ip_list):
@@ -89,8 +106,8 @@ if __name__ == '__main__':
     print(f'netmask:{netmask}')
     print(f'network_address:{network_addr}')
     
-    #get_hostinformation(network_addr)
-    ip='192.168.1.9'
-    ps=nmap.PortScanner()
-    print(ps.scan(ip,'1-65535','-sSV'))
+    ip,mac,host,port=get_hostinformation(network_addr)
+    df=make_result(ip,mac,host,port)
+
+    print(df)
     
