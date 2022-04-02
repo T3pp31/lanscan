@@ -7,7 +7,7 @@ from tqdm import tqdm
 import socket
 import os
 import pandas as pd
-
+import threading
 
 
 def get_own_ip():
@@ -39,12 +39,76 @@ def get_hostname(ip):
         hostname='None'
     return hostname
 
+def port_scan(ip_list):
+    for ip in tqdm(ip_list):
+        for port in tqdm(range(0,65535)):
+            individual_port=[]
+            s=socket.socket()
+            errno = s.connect_ex((ip,port))
+            s.close()
+        
+            if errno == 0 :
+                individual_port.append(port)
+        port.append(individual_port)
+        
+        
+def port_run(ip):
+    scan_range = [1, 65535];
+
+    host = ip
+
+    threads = [];
+    ports = [];
+    isopen = [];
+    individual_port=[]
+
+    def Run(port, i):
+        con = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        return_code = con.connect_ex((host, port))
+        con.close()
+
+        if return_code == 0:
+            isopen[i]=1;
+        
+    
+    count = 0;
+    for port in tqdm(range(scan_range[0], scan_range[1])):
+        ports.append(port);
+        isopen.append(0);
+        thread = threading.Thread(target=Run, args=(port, count));
+        thread.start();
+        threads.append(thread);
+        count = count + 1;
+    thread.join()
+    
+        
+    for i in range(len(threads)):
+        threads[i].join()
+        if isopen[i] == 1:
+            individual_port.append(ports[i])
+            print('%d open' % ports[i])
+    
+    print(individual_port)
+
+    return individual_port
+
+
+
+
+
+
+
+
+
+
+
 # ipアドレス,macアドレス,host名,ポートを検索する
 def get_hostinformation(networkaddr):
     ip_list=[]
     mac_list=[]
     host_name=[]
-    open_port=[]
+    port=[]
+
     for ip in tqdm(netaddr.IPNetwork(networkaddr)):
         print(ip)
         ip=str(ip)
@@ -57,24 +121,19 @@ def get_hostinformation(networkaddr):
         except:
             pass
         
+    host_name.append(get_hostname(ip_list))
+    
     for ip in tqdm(ip_list):
-        host_name.append(get_hostname(ip))
-        ip=str(ip)
-        individual_port = port_scan(ip)
-        open_port.append(individual_port)
+        individual_port=port_run(ip)
+        port.append(individual_port)
         
-    return ip_list,mac_list,host_name,open_port
+        
+        
+    
+        
+    return ip_list,mac_list,host_name,port
 
-def port_scan(ip):
-    individual_port=[]
-    for port in tqdm(range(0,65535)):
-        s=socket.socket()
-        errno = s.connect_ex((ip,port))
-        s.close()
-        
-        if errno == 0 :
-            individual_port.append(port)
-    return individual_port
+
         
         
         
@@ -113,7 +172,9 @@ if __name__ == '__main__':
     print(f'network_address:{network_addr}')
     
     ip,mac,host,port=get_hostinformation(network_addr)
-    df=make_result(ip,mac,host,port)
-
-    print(df)
     
+
+    print(f'ip:{ip}')
+    print(f'mac:{mac}')
+    print(f'hostname:{host}')
+    print(f'port:{port}')
