@@ -78,7 +78,6 @@ def port_run(ip):
         thread = threading.Thread(target=Run, args=(port, count));
         thread.start();
         threads.append(thread);
-        thread.join()
         count = count + 1;
     
     
