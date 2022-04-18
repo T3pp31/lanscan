@@ -32,12 +32,16 @@ def get_networkaddr():
     return network_addr
 
 #ホスト名を検索
-def get_hostname(ip):
-    try:
-        hostname = socket.gethostbyaddr(ip)[0]
-    except:
-        hostname='None'
-    return hostname
+def get_hostname(ip_list):
+    host_list=[]
+    for ip in ip_list:
+        try:
+            hostname = socket.gethostbyaddr(ip)[0]
+            host_list.append(hostname)
+        except:
+            host_list.append('None')
+
+    return host_list
 
 def port_scan(ip_list):
     for ip in tqdm(ip_list):
@@ -106,7 +110,6 @@ def port_run(ip):
 def get_hostinformation(networkaddr):
     ip_list=[]
     mac_list=[]
-    host_name=[]
     port=[]
 
     for ip in tqdm(netaddr.IPNetwork(networkaddr)):
@@ -121,7 +124,7 @@ def get_hostinformation(networkaddr):
         except:
             pass
         
-    host_name.append(get_hostname(ip_list))
+    host=get_hostname(ip_list)
     
     for ip in tqdm(ip_list):
         individual_port=port_run(ip)
@@ -131,7 +134,7 @@ def get_hostinformation(networkaddr):
         
     
         
-    return ip_list,mac_list,host_name,port
+    return ip_list,mac_list,host,port
 
 
         
@@ -147,17 +150,7 @@ def make_result(ip,mac,host,port):
     return df
 
 
-# ホスト名を取得
-def get_hostname(ip_list):
-    host_list=[]
-    for ip in ip_list:
-        try:
-            hostname = socket.gethostbyaddr(ip)[0]
-            host_list.append(hostname)
-        except:
-            host_list.append('None')
 
-    return host_list
 
 
 if __name__ == '__main__':
@@ -166,18 +159,19 @@ if __name__ == '__main__':
     netmask = get_netmask()
     network_addr = get_networkaddr()
     
-    print(f'my_ip:{own_ip}')
-    print(f'broadcast_address:{broadcastaddr}')
-    print(f'netmask:{netmask}')
-    print(f'network_address:{network_addr}')
     
     ip,mac,host,port=get_hostinformation(network_addr)
     
 
-    print(f'ip:{ip}')
-    print(f'mac:{mac}')
-    print(f'hostname:{host}')
-    print(f'port:{port}')
+    #print(f'ip:{ip}')
+    #print(f'mac:{mac}')
+    #print(f'hostname:{host}')
+    #print(f'port:{port}')
+    
+    print(f'my_ip:{own_ip}')
+    print(f'broadcast_address:{broadcastaddr}')
+    print(f'netmask:{netmask}')
+    print(f'network_address:{network_addr}')
     
     df=make_result(ip,mac,host,port)
     print(df)
