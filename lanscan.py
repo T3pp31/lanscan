@@ -178,3 +178,6 @@ if __name__ == '__main__':
     print(f'mac:{mac}')
     print(f'hostname:{host}')
     print(f'port:{port}')
+    
+    df=make_result(ip,mac,host,port)
+    print(df)
