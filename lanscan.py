@@ -167,7 +167,7 @@ if __name__ == '__main__':
     #print(f'mac:{mac}')
     #print(f'hostname:{host}')
     #print(f'port:{port}')
-    print('------------------------------------------------------------')
+    print('-------------------------------------------------------------------------------------------')
     
     print(f'my_ip:{own_ip}')
     print(f'broadcast_address:{broadcastaddr}')
